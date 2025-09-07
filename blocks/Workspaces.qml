@@ -5,6 +5,7 @@ import Quickshell.Hyprland
 import Quickshell.Widgets
 import Qt5Compat.GraphicalEffects
 import "../utils" as Utils
+import "./" as Blocks
 
 RowLayout {
     anchors.verticalCenter: parent.verticalCenter
@@ -13,7 +14,7 @@ RowLayout {
 
     Rectangle {
         id: workspaceBar
-        Layout.preferredWidth: Math.max(50, (12 * 40) + 20)
+        Layout.preferredWidth: 0 + 620
         Layout.preferredHeight: 23
         Layout.fillHeight: true
         radius: 7
@@ -30,8 +31,11 @@ RowLayout {
                     required property int index
                     property bool focused: Hyprland.focusedMonitor?.activeWorkspace?.id === (index + 1)
                     property bool hovered: false
+                    property var appTitles: Blocks.Hyprclients.clients
+                        .filter(client => client.workspace === (index + 1))
+                        .map(client => client.class)
                     
-                    width: 40
+                    width: (String(index) + " " + Utils.IconResolver.resolveIcon(appTitles)).length * 20
                     height: 40
                     radius: 4
                     color: focused ? "#cdd6f4" : "#1e1e2e"
@@ -39,8 +43,8 @@ RowLayout {
                     Text {
                         id: workspaceText
                         anchors.centerIn: parent
-                        text: (index + 1).toString()
-                        color: focused ? "#1e1e2e" : (hovered ? "#ff3a75" : "white")
+                        text: `${index + 1} ${Utils.IconResolver.resolveIcon(appTitles)}`
+                        color: focused ? "#1e1e2e" : (hovered ? "#ff3a75": "white")
                         font.pixelSize: 15
                         font.bold: focused
 
