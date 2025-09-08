@@ -2,14 +2,17 @@
 
 hyprctl clients |
 awk '
+function escape(str) {
+    gsub(/\\/, "\\\\", str)
+    gsub(/"/, "\\\"", str)
+    return str
+}
 BEGIN { printf "[" }
 /^Window [0-9a-f]/ {
-    # Print previous window (if any) before starting new one
     if (NR > 1 && title != "") {
         printf "%s{\"workspace\":%s,\"title\":\"%s\",\"class\":\"%s\",\"pid\":%s}", 
-               (n++ ? "," : ""), ws, ttl, cls, pid
+               (n++ ? "," : ""), ws, escape(ttl), escape(cls), pid
     }
-    # Start new window
     split($0,a,/ -> /)
     title = a[2]
     sub(/:$/, "", title)
@@ -21,10 +24,9 @@ $1 == "class:"     { cls = $2 }
 $1 == "title:"     { ttl = substr($0, index($0,$2)) }
 $1 == "pid:"       { pid = $2 }
 END {
-    # Print the last window
     if (title != "") {
         printf "%s{\"workspace\":%s,\"title\":\"%s\",\"class\":\"%s\",\"pid\":%s}", 
-               (n++ ? "," : ""), ws, ttl, cls, pid
+               (n++ ? "," : ""), ws, escape(ttl), escape(cls), pid
     }
     print "]"
 }'
